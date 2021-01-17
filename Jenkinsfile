@@ -35,6 +35,22 @@ pipeline {
 				sh 'mvn failsafe:integration-test failsafe:verify'
 			}
 		}
+		stage('Build docker image') {
+			steps {
+				//docker build -t eloyez33/currency-exchange-devops:$env.BUILD_TAG
+				script {
+					dockerImage = docker.build("eloyez33/currency-exchange-devops:${env.BUILD_TAG}")
+				}
+			}
+		}
+		stage('Push docker image') {
+			steps {
+				docker.withRegistry('', 'dockerhub') {
+					dockerImage.push();
+					dockerImage.push('latest');
+				}	
+			}
+		}
 	} 
 	// post {
 	// 	always {
